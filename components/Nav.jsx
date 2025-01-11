@@ -7,16 +7,26 @@ import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 import { get } from "mongoose";
 
 const Nav = () => {
-  const isUserLoggedIn = true;
-  const [providers, setProviders] = useState(null);
+  const [Providers, setProviders] = useState(null);
   const [toggleDropdown, settoggleDropdown] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
-    /* const setProviders = async () => {
+     const setUpProviders = async () => {
       const response = await getProviders();
       setProviders(response);
-    }; */
-    // setProviders();
+    }; 
+
+    try{
+      setUpProviders();
+    /*  (async () => {
+      const res = await getProviders();
+      setProviders(res);
+      alert(JSON.stringify(res))
+    })(); */
+    }catch(error){
+      console.error('[next-auth][error][CLIENT_FETCH_ERROR]', error);
+    }
   }, []);
 
   return (
@@ -33,7 +43,7 @@ const Nav = () => {
       </Link>
       {/* Desktop Navigation*/}
       <div className="sm:flex hidden">
-        {isUserLoggedIn ? (
+        {session?.user ? (
           <div className="flex gap-3 md:gap-5">
             <Link href="/create-prompt" className="black_btn">
               Create Prompt
@@ -54,7 +64,7 @@ const Nav = () => {
         ) : (
           <>
             {Providers &&
-              Object.values(providers).map((provider) => (
+              Object.values(Providers).map((provider) => (
                 <button
                   type="button"
                   className="black_btn"
@@ -72,7 +82,7 @@ const Nav = () => {
 
       {/* Mobile Navigation*/}
       <div className="sm:hidden flex relative">
-        {isUserLoggedIn ? (
+        {session?.user ? (
           <div className="flex">
             <Image
               src="/assets/images/logo.svg"
@@ -109,7 +119,7 @@ const Nav = () => {
                   className="mt-5 w-full black_btn"
                   onClick={() => {
                     settoggleDropdown(false);
-                     signOut();
+                    signOut();
                   }}
                 >
                   Sign Out
@@ -119,8 +129,8 @@ const Nav = () => {
           </div>
         ) : (
           <>
-            {providers &&
-              Object.values(providers).map((provider) => (
+            {Providers &&
+              Object.values(Providers).map((provider) => (
                 <button
                   className="black_btn"
                   type="button"
