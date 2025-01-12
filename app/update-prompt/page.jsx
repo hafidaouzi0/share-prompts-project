@@ -5,20 +5,35 @@ import { useSession } from "next-auth/react";
 import { useRouter , useSearchParams} from "next/navigation";
 import Form from "@components/Form";
 
-const CreatePrompt = () => {  const [submitting, setsubmitting] = useState(false);
+const UpdatePrompt = () => {
+  const [submitting, setsubmitting] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const promptId = searchParams.get('id');
   const [post, setpost] = useState({
     prompt: "",
     tag: "",
   });
-  const createNewPrompt = async (e) => {
+  useEffect(() => {
+    const getPromptDetails = async () => {
+      const response = await fetch(`/api/prompt/edit/${promptId}`);
+      const data = await response.json();
+      setpost({
+        prompt: data.prompt,
+        tag: data.tag,
+      });
+    }
+    if(promptId) getPromptDetails();
+  }, [promptId]);
+  const editNewPrompt = async (e) => {
     e.preventDefault(); //to prevent default behavior of the browser when submitting a form to do a reload
     //cause we want least ampunt of reloads as possible
     setsubmitting(true);
     try {
-      const response = await fetch("/api/prompt/new", {
-        method: "POST",
+        if(!promptId) return alert('Prompt not found');
+      const response = await fetch(`/api/prompt/edit/${promptId}`, {
+        method: "PATCH",
         body: JSON.stringify({
           prompt: post.prompt,
           tag: post.tag,
@@ -37,14 +52,14 @@ const CreatePrompt = () => {  const [submitting, setsubmitting] = useState(false
   };
   return (
     <Form
-      type="Update"
+      type="Edit"
       post={post}
       setpost={setpost}
       submitting={submitting}
-      handleSubmit={createNewPrompt}
+      handleSubmit={editNewPrompt}
     />
   );
 };
 
+export default UpdatePrompt;
 
-export default CreatePrompt;

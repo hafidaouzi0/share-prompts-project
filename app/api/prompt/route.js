@@ -4,7 +4,6 @@ import { connectToDB } from "@utils/database"
 
 
 export const GET = async (req) => {
-    const { } = req.json();
 
     try {
         await connectToDB();
